@@ -21,9 +21,13 @@ mail:
   # The port to run the mail server on (SMTP)
   port: 25
 
-  # The accepted domain for the mail server. This is used to determine which email addresses can
+  # The accepted domains for the mail server. This is used to determine which email addresses can
   # be automatically mapped to rooms in Matrix.
-  domain: "email.t2bot.io"
+  domains:
+    - "email.t2bot.io"
+
+  # Accept messages from any domain.
+  allowAnyDomain: false
 
 # The web server configuration (used only for accessing messages in the web browser)
 web:
@@ -31,17 +35,21 @@ web:
   port: 80
 
   # The IP to bind to (0.0.0.0 is 'all interfaces')
-  bindIp: '0.0.0.0'
+  bindIp: "0.0.0.0"
 
   # This is the 'secret' used by the local agent (when invoked) to post the message to the web
   # server. Be sure to make this nice and random!
-  secret: 'YOUR_SECRET_HERE'
+  secret: "YOUR_SECRET_HERE"
 
 # A collection of addresses to room mappings. Useful for mailing lists where the `To` address
 # might not be a room ID.
 customMailTargets:
   # Format: "support@matrix.org": ["!myRoomId:matrix.org", "!otherRoomId:t2l.io"]
   "test@email.t2bot.io": ["ooXDTgcuwbbtVkAEJL:t2bot.io"]
+
+# If set, send messages to this room when nothing matches in customMailTargets, but the domain
+# matches or mail.allowAnyDomain is true.
+defaultMailTargets: []
 
 # The default room configuration. These are the options used when rooms under roomConfigs don't
 # specify some options. roomConfigs should only specify options that they override/change from
@@ -155,6 +163,7 @@ defaultRoomConfig:
 
 # The configurations for each individual room. Settings that are overriden from the defaults
 # should be put here for each room - all other settings are assumed to be the defaults.
+# The domain name check is skipped if there is a match here.
 roomConfigs:
   # An example room configuration
   "!ooXDTgcuwbbtVkAEJL:t2bot.io":

@@ -8,7 +8,7 @@ export function getRoomConfig(roomId: string): IAnnotatedRoomConfig {
     const defaults = config.defaultRoomConfig;
     let overrides = config.roomConfigs[roomId];
     if (!overrides) {
-        return null;
+        return Object.assign({}, {roomId}, defaults) as IAnnotatedRoomConfig;
     }
     return Object.assign({}, {roomId}, defaults, overrides) as IAnnotatedRoomConfig;
 }
@@ -16,19 +16,27 @@ export function getRoomConfig(roomId: string): IAnnotatedRoomConfig {
 export function getRoomConfigsForTarget(emailAddress: string, source: "cc" | "bcc" | "to"): IAnnotatedRoomConfig[] {
     const configs: IAnnotatedRoomConfig[] = [];
     const customMapping = config.customMailTargets[emailAddress];
-    if (!customMapping) {
-        const domain = config.mail.domain;
-        if (emailAddress.endsWith("@" + domain)) {
+    const defaultMapping = config.defaultMailTargets;
+
+    if (customMapping) {
+        for (const mapped of customMapping) {
+            configs.push(getRoomConfig(mapped));
+        }
+    } else if (defaultMapping.length > 0) {
+        for (const mapped of defaultMapping) {
+            configs.push(getRoomConfig(mapped));
+        }
+    } else {
+        const domains = config.mail.domains;
+
+        if (domains.includes(emailAddress.split('@')[1]) || config.mail.allowAnyDomain) {
             const parts = emailAddress.split('@')[0].split('_');
             if (parts.length < 2) return null; // invalid address
 
             const roomId = `!${parts.shift()}:${parts.join('_')}`;
             configs.push(getRoomConfig(roomId));
         }
-    } else {
-        for (const mapped of customMapping) {
-            configs.push(getRoomConfig(mapped));
-        }
+
     }
 
     if (configs.length === 0) {

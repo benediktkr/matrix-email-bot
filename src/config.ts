@@ -37,7 +37,8 @@ interface IConfig {
     mail: {
         enabled: boolean;
         port: number;
-        domain: string;
+        domains: string[];
+        allowAnyDomain: boolean;
     };
     web: {
         port: number;
@@ -45,6 +46,7 @@ interface IConfig {
         secret: string;
     };
     customMailTargets: Map<string, string[]>; // emails to room IDs
+    defaultMailTargets: string[]; // room IDs
     defaultRoomConfig: IRoomConfig;
     roomConfigs: Map<string, IRoomConfig>; // room ID to config
 }
